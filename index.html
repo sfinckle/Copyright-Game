@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rights Router: Music Copyright Challenge</title>
+<style>
+:root{
+  --bg:#f7f4fb;
+  --panel:#ffffff;
+  --card:#fbfaff;
+  --text:#24152f;
+  --muted:#6f6277;
+  --border:#d9cdea;
+  --accent:#6f2da8;
+  --accent-soft:#efe4f8;
+  --green:#2f8f5b;
+  --green-soft:#e8f5ed;
+  --good:#2f8f5b;
+  --bad:#9a2f56;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:linear-gradient(180deg,#f5effb 0%,#ffffff 42%,#eef8f1 100%);
+  color:var(--text);
+}
+main{
+  max-width:1100px;
+  margin:0 auto;
+  padding:24px 16px 40px;
+}
+header, section{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:18px;
+  margin-bottom:16px;
+}
+header{
+  border-top:6px solid var(--accent);
+}
+section:nth-of-type(even){
+  border-left:5px solid var(--green);
+}
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  flex-wrap:wrap;
+  align-items:flex-start;
+}
+.kicker{
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.08em;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+h1{
+  margin:4px 0 6px;
+  font-size:28px;
+}
+p{line-height:1.5}
+.scorebox{
+  display:flex;
+  gap:24px;
+  text-align:center;
+}
+.big{
+  font-size:24px;
+  font-weight:700;
+}
+.small{
+  font-size:12px;
+  color:var(--muted);
+}
+.scenario{
+  font-size:20px;
+  font-weight:700;
+}
+.meta{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.badge{
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:5px 10px;
+  font-size:12px;
+  font-weight:700;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.grid.orgs{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+.rights-group{
+  margin-top:16px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px;
+}
+.song-group{
+  background:#faf5ff;
+  border-left:5px solid var(--accent);
+}
+.recording-group{
+  background:#f2faf5;
+  border-left:5px solid var(--green);
+}
+.rights-group-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+.rights-side-label{
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:.06em;
+}
+.song-label{color:var(--accent)}
+.recording-label{color:var(--green)}
+.choice{
+  min-height:76px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:var(--card);
+  padding:12px;
+  text-align:left;
+  font-size:15px;
+  cursor:pointer;
+}
+.choice[aria-pressed="true"]{
+  border-color:var(--green);
+  background:var(--green-soft);
+  outline:2px solid var(--accent);
+}
+.choice:focus{
+  outline:3px solid var(--accent);
+  outline-offset:2px;
+}
+.controls{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+button.action{
+  min-height:44px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:white;
+  padding:10px 16px;
+  font-weight:700;
+  cursor:pointer;
+}
+button.primary{
+  background:var(--accent);
+  color:white;
+  border-color:var(--accent);
+}
+button.primary:hover{
+  background:#5d238f;
+}
+button.action:not(.primary):hover{
+  border-color:var(--green);
+  color:var(--green);
+}
+.hidden{display:none}
+.feedback-title.good{color:var(--good)}
+.feedback-title.bad{color:var(--bad)}
+.correct-box{
+  margin-top:12px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  line-height:1.5;
+}
+.hint{
+  margin-top:12px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  color:var(--muted);
+}
+footer{
+  color:var(--muted);
+  font-size:12px;
+  text-align:center;
+  margin-top:14px;
+  border-top:3px solid var(--green);
+  padding-top:14px;
+}
+.flow-wrap{
+  margin-top:14px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:linear-gradient(180deg,#ffffff 0%, #faf7fd 60%, #f3fbf6 100%);
+  padding:14px;
+}
+.flow-title{
+  font-size:14px;
+  font-weight:700;
+  color:var(--accent);
+  margin-bottom:10px;
+}
+.flow-graphic{
+  display:grid;
+  gap:12px;
+}
+.flow-grid{
+  display:grid;
+  grid-template-columns:1.15fr .18fr 1fr .18fr 1fr;
+  gap:10px;
+  align-items:start;
+}
+.flow-col-title{
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:8px;
+}
+.flow-box{
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:10px 12px;
+  background:#fff;
+  min-height:54px;
+}
+.flow-box.scenario-box{
+  background:var(--accent-soft);
+  border-color:#c8b0e3;
+}
+.flow-box.song-box{
+  background:#f6f0fc;
+}
+.flow-box.recording-box{
+  background:#edf8f1;
+}
+.flow-box.right-box{
+  background:#fff;
+}
+.flow-box.org-box{
+  background:#fff;
+}
+.flow-chip{
+  display:inline-block;
+  margin:4px 6px 0 0;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+  border:1px solid var(--border);
+  background:#fff;
+}
+.flow-chip.song{
+  background:#f1e8fb;
+  border-color:#d9c7ee;
+  color:#592e7a;
+}
+.flow-chip.recording{
+  background:#e8f6ee;
+  border-color:#bfe0cc;
+  color:#246544;
+}
+.arrow-col{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:58px;
+  color:var(--accent);
+  font-size:28px;
+  font-weight:700;
+}
+.flow-lane{
+  display:grid;
+  gap:10px;
+}
+.flow-empty{
+  color:var(--muted);
+  font-style:italic;
+  font-size:13px;
+}
+@media (max-width:900px){
+  .flow-grid{
+    grid-template-columns:1fr;
+  }
+  .arrow-col{
+    min-height:auto;
+    font-size:22px;
+    transform:rotate(90deg);
+  }
+}
+@media (max-width:800px){
+  .grid,.grid.orgs{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:520px){
+  .grid,.grid.orgs{grid-template-columns:1fr}
+  h1{font-size:23px}
+  .scenario{font-size:18px}
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="topbar">
+    <div>
+      <div class="kicker">Music Copyright Challenge</div>
+      <h1>Rights Router</h1>
+      <div style="margin-top:-2px;margin-bottom:8px;font-size:14px;font-weight:700;color:var(--green);">MUSC160 Fall 26 • University of St. Thomas Music Business</div>
+      <p>Select every right or license that applies, then select the organization or rightsholder that licenses or administers it.</p>
+      <p class="small"><strong>Rule of thumb:</strong> PROs, MLC, HFA, and SoundExchange are licensing/administration pathways. Choose Owner(s) of PA or Owner(s) of SR when permission is negotiated directly with the copyright owner. For sync/master scenarios, answer the clearance described in the scenario; downstream broadcaster/platform performance licensing is separate unless the scenario specifically asks about it.</p>
+    </div>
+    <div class="scorebox">
+      <div><div id="score" class="big">0</div><div class="small">Score</div></div>
+      <div><div id="round" class="big">1/24</div><div class="small">Round</div></div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="meta">
+    <span class="badge">SCENARIO</span>
+    <span id="difficulty" class="small"></span>
+  </div>
+  <p id="scenario" class="scenario"></p>
+  <div id="hint" class="hint hidden"></div>
+</section>
+
+<section>
+  <h2>1. Rights / Licenses</h2>
+  <p class="small">Choose all that apply, separating the composition from the sound recording.</p>
+
+  <div class="rights-group song-group">
+    <div class="rights-group-header">
+      <div>
+        <div class="rights-side-label song-label">SONG / PA</div>
+        <div class="small">Composition copyright</div>
+      </div>
+    </div>
+    <div id="songRights" class="grid"></div>
+  </div>
+
+  <div class="rights-group recording-group">
+    <div class="rights-group-header">
+      <div>
+        <div class="rights-side-label recording-label">SOUND RECORDING / SR</div>
+        <div class="small">Master recording copyright</div>
+        <div class="small" style="margin-top:4px;"><strong>Game convention:</strong> “Public Performance Rights (Recording)” = noninteractive digital performance via SoundExchange. “Master Streaming License” = negotiated interactive/on-demand streaming license from the SR rightsholder.</div>
+      </div>
+    </div>
+    <div id="recordingRights" class="grid"></div>
+  </div>
+</section>
+
+<section>
+  <h2>2. Organizations / Rightsholders</h2>
+  <p class="small">Choose the entity that licenses or administers each use. Select an Owner card when permission is obtained directly from that copyright owner.</p>
+  <div id="orgs" class="grid orgs"></div>
+</section>
+
+<div class="controls">
+  <button id="hintBtn" class="action" type="button">Hint</button>
+  <button id="clearBtn" class="action" type="button">Clear</button>
+  <button id="startOverBtn" class="action" type="button">Start Over</button>
+  <button id="checkBtn" class="action primary" type="button">Check Answer</button>
+  <button id="nextBtn" class="action primary hidden" type="button">Next</button>
+</div>
+
+<section id="feedback" class="hidden" aria-live="polite">
+  <div id="feedbackTitle" class="feedback-title"></div>
+  <p id="feedbackText"></p>
+  <div id="correctBox" class="correct-box"></div>
+  <div id="flowWrap" class="flow-wrap">
+    <div class="flow-title">Rights Flow</div>
+    <div id="flowGraphic" class="flow-graphic"></div>
+  </div>
+</section>
+
+<section id="finish" class="hidden">
+  <div class="kicker">Final Score</div>
+  <div id="finalScore" class="big"></div>
+  <h2 id="rank"></h2>
+  <p id="rankText"></p>
+  <button id="restartBtn" class="action primary" type="button">Play Again</button>
+</section>
+
+<footer>Standalone classroom version. No internet connection required.</footer>
+</main>
+
+<script>
+const SONG_RIGHTS=[
+  'Mechanical Rights (Digital)',
+  'Mechanical Rights (Vinyl, CD, Download)',
+  'Public Performance Rights (Song)',
+  'Synchronization Rights',
+  'Derivative Rights'
+];
+
+const RECORDING_RIGHTS=[
+  'Public Performance Rights (Recording)',
+  'Master Use Rights',
+  'Master Streaming License',
+  'Sample Clearance'
+];
+
+const RIGHTS=[...SONG_RIGHTS,...RECORDING_RIGHTS];
+
+const ORGS=[
+  'PROs',
+  'SoundExchange',
+  'MLC',
+  'HFA',
+  'Owner(s) of PA',
+  'Owner(s) of SR'
+];
+
+const QUESTIONS=[
+  {
+    s:'An artist records a cover of a copyrighted song and releases the new recording on Spotify.',
+    r:['Mechanical Rights (Digital)','Public Performance Rights (Song)','Master Streaming License'],
+    o:['MLC','PROs','Owner(s) of SR'],
+    d:'Starter',
+    h:'Spotify is interactive streaming. Think about both the composition side and the sound-recording side.',
+    x:'The artist created a new recording, so the original master is not being used. Spotify on-demand streaming implicates both the digital mechanical right and the public performance right in the composition. The MLC handles the digital mechanical license and PROs handle public performance of the song. On the sound-recording side, Spotify needs a Master Streaming License from the owner or owners of the SR.'
+  },
+  {
+    s:'A band records a cover song and presses 1,000 vinyl records. The publisher uses Harry Fox to administer its mechanical licenses.',
+    r:['Mechanical Rights (Vinyl, CD, Download)'],
+    o:['HFA'],
+    d:'Starter',
+    h:'This is reproduction of the composition in a physical format, and the scenario tells you who administers the mechanical license.',
+    x:'Pressing vinyl reproduces the composition, creating a mechanical license requirement. In this scenario, HFA administers that physical mechanical license for the publisher.'
+  },
+  {
+    s:'A restaurant plays commercially released music over its speakers for customers.',
+    r:['Public Performance Rights (Song)'],
+    o:['PROs'],
+    d:'Starter',
+    h:'Focus on public performance of the composition in a physical business.',
+    x:'The restaurant publicly performs compositions and typically obtains blanket performance licenses from PROs. Ordinary in-store playback does not trigger the federal digital sound-recording performance right administered by SoundExchange.'
+  },
+  {
+    s:'An FM radio station broadcasts a commercially released recording.',
+    r:['Public Performance Rights (Song)'],
+    o:['PROs'],
+    d:'Intermediate',
+    h:'Terrestrial radio has an important U.S. distinction between the song and the recording.',
+    x:'The station licenses public performance of the composition through PROs. U.S. terrestrial AM/FM broadcasting generally does not pay the digital sound-recording performance royalty administered by SoundExchange.'
+  },
+  {
+    s:'A noninteractive digital radio service streams a commercially released track, and listeners cannot choose the exact song on demand.',
+    r:['Public Performance Rights (Song)','Public Performance Rights (Recording)'],
+    o:['PROs','SoundExchange'],
+    d:'Intermediate',
+    h:'Eligible noninteractive digital transmission can implicate public performance rights on both copyright sides.',
+    x:'The composition earns a public performance royalty through PROs. The sound recording also has an eligible digital public performance right, administered through SoundExchange.'
+  },
+  {
+    s:'Spotify plays an on-demand stream of an existing commercially released track.',
+    r:['Mechanical Rights (Digital)','Public Performance Rights (Song)','Master Streaming License'],
+    o:['MLC','PROs','Owner(s) of SR'],
+    d:'Intermediate',
+    h:'Interactive streaming uses the composition and the master. Identify the rights on both sides.',
+    x:'Spotify on-demand streaming implicates both the digital mechanical right and the public performance right in the composition. The MLC administers the blanket digital mechanical license, while PROs administer public performance of the song. On the sound-recording side, Spotify needs a Master Streaming License from the owner or owners of the SR. SoundExchange does not administer ordinary interactive Spotify master royalties.'
+  },
+  {
+    s:'A filmmaker records a new cover of a famous song specifically for a movie scene.',
+    r:['Synchronization Rights'],
+    o:['Owner(s) of PA'],
+    d:'Intermediate',
+    h:'The composition is being paired with moving images, but the original master is not being used.',
+    x:'The filmmaker needs synchronization permission from the owner or owners of the composition copyright. Because a new recording is being created, there is no master-use license for the original sound recording.'
+  },
+  {
+    s:'A filmmaker is clearing the original commercially released recording of a famous song for inclusion in a movie.',
+    r:['Synchronization Rights','Master Use Rights'],
+    o:['Owner(s) of PA','Owner(s) of SR'],
+    d:'Intermediate',
+    h:'Both copyrights are being used.',
+    x:'For the clearance described here, the filmmaker needs synchronization permission from the owner of the composition and master-use permission from the owner of the sound recording. Any later public-performance licensing by the exhibitor, broadcaster, or platform is a separate downstream issue.'
+  },
+  {
+    s:'A brand is clearing the original master recording of a popular song for inclusion in a television commercial.',
+    r:['Synchronization Rights','Master Use Rights'],
+    o:['Owner(s) of PA','Owner(s) of SR'],
+    d:'Intermediate',
+    h:'Ask who controls the song and who controls the existing recording.',
+    x:'For the clearance described here, the commercial requires synchronization permission from the PA owner or owners and master-use permission from the SR owner or owners. Later broadcast/public-performance licensing is a separate downstream issue.'
+  },
+  {
+    s:'A songwriter changes the lyrics and structure of an existing copyrighted song to create a new commercial adaptation.',
+    r:['Derivative Rights'],
+    o:['Owner(s) of PA'],
+    d:'Advanced',
+    h:'This goes beyond simply recording the song as written.',
+    x:'Creating a new adaptation implicates the derivative-work right in the composition. Permission must come from the owner or owners of the PA copyright.'
+  },
+  {
+    s:'A producer takes four seconds directly from an existing commercially released recording and puts it into a new song.',
+    r:['Derivative Rights','Sample Clearance'],
+    o:['Owner(s) of PA','Owner(s) of SR'],
+    d:'Advanced',
+    h:'Separate the composition side from the master side.',
+    x:'On the composition side, the producer needs permission related to the derivative use of the underlying song from the PA owner or owners. On the master side, the producer needs sample clearance from the SR owner or owners.'
+  },
+  {
+    s:'A YouTube creator is clearing the original recording of a copyrighted song for inclusion underneath a car-repair video before uploading it.',
+    r:['Synchronization Rights','Master Use Rights'],
+    o:['Owner(s) of PA','Owner(s) of SR'],
+    d:'Advanced',
+    h:'The music is being paired with moving images and the original master is being used.',
+    x:'For the creator’s clearance described here, the video requires synchronization permission from the owner of the composition and master-use permission from the owner of the sound recording. Platform-level public-performance licensing is a separate downstream issue.'
+  },
+  {
+    s:'A singer records a cover song and plans to sell 500 permanent digital downloads directly from their own website. They use HFA Songfile to obtain the mechanical license.',
+    r:['Mechanical Rights (Vinyl, CD, Download)'],
+    o:['HFA'],
+    d:'Starter',
+    h:'This is a limited-quantity permanent download licensed directly by the artist, not a DSP operating under the MLC blanket license.',
+    x:'Selling permanent downloads reproduces and distributes the composition, creating a mechanical license requirement. HFA Songfile can be used for limited-quantity permanent downloads, so HFA is the licensing path in this scenario.'
+  },
+  {
+    s:'A gym plays commercially released music over its sound system during workouts.',
+    r:['Public Performance Rights (Song)'],
+    o:['PROs'],
+    d:'Starter',
+    h:'This is a public performance in a business establishment.',
+    x:'The gym is publicly performing compositions and typically needs public performance licenses from PROs. Ordinary in-room playback does not create the federal digital sound-recording performance royalty handled by SoundExchange.'
+  },
+  {
+    s:'SiriusXM broadcasts a commercially released recording on one of its music channels.',
+    r:['Public Performance Rights (Song)','Public Performance Rights (Recording)'],
+    o:['PROs','SoundExchange'],
+    d:'Intermediate',
+    h:'This is a noninteractive digital performance, so think about both copyrights.',
+    x:'The composition earns public performance royalties through PROs, while the eligible digital public performance of the sound recording is administered through SoundExchange.'
+  },
+  {
+    s:'A label releases an artist’s original song on Spotify as an on-demand stream.',
+    r:['Mechanical Rights (Digital)','Public Performance Rights (Song)','Master Streaming License'],
+    o:['MLC','PROs','Owner(s) of SR'],
+    d:'Intermediate',
+    h:'An on-demand stream uses both the composition and the sound recording, even when the artist wrote the song.',
+    x:'Interactive streaming implicates both the digital mechanical right and the public performance right in the composition. The MLC administers the blanket digital mechanical license and PROs administer the public performance right. On the sound-recording side, Spotify needs a Master Streaming License from the owner or owners of the SR.'
+  },
+  {
+    s:'A mobile game developer is clearing the original commercially released recording of a song for inclusion in a game soundtrack.',
+    r:['Synchronization Rights','Master Use Rights'],
+    o:['Owner(s) of PA','Owner(s) of SR'],
+    d:'Intermediate',
+    h:'The song is being paired with an interactive visual work and the existing master is being used.',
+    x:'For inclusion in the game, the developer needs synchronization permission from the owner or owners of the composition and master-use permission from the owner or owners of the sound recording.'
+  },
+  {
+    s:'A filmmaker wants to use a song in a movie, but plans to hire musicians to record a brand-new version instead of using the original master.',
+    r:['Synchronization Rights'],
+    o:['Owner(s) of PA'],
+    d:'Intermediate',
+    h:'The composition is being used, but the original sound recording is not.',
+    x:'The filmmaker needs synchronization permission from the owner or owners of the composition. Because a new recording is being created, no license from the owner of the original sound recording is needed.'
+  },
+  {
+    s:'A music arranger substantially rewrites the melody and structure of a copyrighted song to create a new arrangement. It has not yet been recorded, distributed, or publicly performed.',
+    r:['Derivative Rights'],
+    o:['Owner(s) of PA'],
+    d:'Advanced',
+    h:'The arranger is changing the underlying copyrighted work itself. No recording, distribution, or performance has happened yet.',
+    x:'A substantial new arrangement can implicate the derivative-work right in the composition. At this stage the relevant permission is from the owner or owners of the PA copyright.'
+  },
+  {
+    s:'A producer samples part of an existing master recording, then releases the new sampled track on Spotify.',
+    r:['Derivative Rights','Sample Clearance','Mechanical Rights (Digital)','Public Performance Rights (Song)','Master Streaming License'],
+    o:['Owner(s) of PA','Owner(s) of SR','MLC','PROs'],
+    d:'Advanced',
+    h:'There are two stages here: clearing the sample, then streaming the finished composition.',
+    x:'The sample itself requires permission on both copyright sides: derivative permission for the sampled composition and sample clearance from the owner of the sampled master. Once the finished track is streamed on demand, the composition also generates digital mechanical and public performance royalties through the MLC and PROs, and Spotify needs a Master Streaming License from the owner of the finished sound recording. Those two SR owners may be different parties.'
+  },
+  {
+    s:'A television producer is clearing the original recording of a song for inclusion under the opening credits of a weekly program before broadcast.',
+    r:['Synchronization Rights','Master Use Rights'],
+    o:['Owner(s) of PA','Owner(s) of SR'],
+    d:'Intermediate',
+    h:'The song is synchronized to television images and the original master is being used.',
+    x:'For the producer’s clearance described here, the television use requires synchronization permission for the composition and master-use permission for the existing sound recording. The broadcaster’s composition public-performance licensing is a separate downstream issue.'
+  },
+  {
+    s:'A college radio station broadcasts a commercially released track over traditional FM radio.',
+    r:['Public Performance Rights (Song)'],
+    o:['PROs'],
+    d:'Intermediate',
+    h:'Traditional terrestrial radio is different from noninteractive digital radio in the United States.',
+    x:'The station licenses the public performance of the composition through PROs. Traditional U.S. FM broadcasting generally does not trigger the federal digital sound-recording performance royalty administered by SoundExchange.'
+  },
+  {
+    s:'A coffee shop hosts a live band that performs copyrighted songs for customers.',
+    r:['Public Performance Rights (Song)'],
+    o:['PROs'],
+    d:'Starter',
+    h:'The songs are being performed publicly, even though no commercial recording is being played.',
+    x:'The public performance right in the compositions is implicated. The venue typically covers those performances through licenses from PROs.'
+  },
+  {
+    s:'A clothing brand is clearing the original master recording of a copyrighted song for inclusion in a social-media video before posting it.',
+    r:['Synchronization Rights','Master Use Rights'],
+    o:['Owner(s) of PA','Owner(s) of SR'],
+    d:'Intermediate',
+    h:'This is an audiovisual use of the song and the original recording.',
+    x:'For the brand’s clearance described here, synchronization permission is needed from the composition owner or owners and master-use permission from the sound-recording owner or owners. Platform-level public-performance licensing is a separate downstream issue.'
+  }
+];
+
+let index=0, score=0, answered=false, hintUsed=false;
+const selectedRights=new Set();
+const selectedOrgs=new Set();
+
+const $=id=>document.getElementById(id);
+
+function classifyFlow(q){
+  const songRights = [];
+  const recordingRights = [];
+  const songOrgs = [];
+  const recordingOrgs = [];
+
+  q.r.forEach(r=>{
+    if(r === 'Mechanical Rights (Digital)' || r === 'Mechanical Rights (Vinyl, CD, Download)' || r === 'Public Performance Rights (Song)' || r === 'Synchronization Rights' || r === 'Derivative Rights'){
+      songRights.push(r);
+    }
+    if(r === 'Public Performance Rights (Recording)' || r === 'Master Use Rights' || r === 'Master Streaming License' || r === 'Sample Clearance'){
+      recordingRights.push(r);
+    }
+  });
+
+  q.o.forEach(o=>{
+    if(o === 'MLC' || o === 'HFA' || o === 'PROs' || o === 'Owner(s) of PA'){
+      songOrgs.push(o);
+    }
+    if(o === 'SoundExchange' || o === 'Owner(s) of SR'){
+      recordingOrgs.push(o);
+    }
+  });
+
+  const needsSong = songRights.length || songOrgs.length;
+  const needsRecording = recordingRights.length || recordingOrgs.length;
+
+  return {songRights, recordingRights, songOrgs, recordingOrgs, needsSong, needsRecording};
+}
+
+function chips(items, cls){
+  if(!items.length) return '<div class="flow-empty">None</div>';
+  return items.map(item => '<span class="flow-chip '+cls+'">'+item+'</span>').join('');
+}
+
+function renderFlow(q){
+  const f = classifyFlow(q);
+  let html = '<div class="flow-grid">';
+
+  html += '<div><div class="flow-col-title">Use</div><div class="flow-box scenario-box">'+q.s+'</div></div>';
+  html += '<div class="arrow-col">→</div>';
+
+  let middle = '<div class="flow-lane">';
+  if(f.needsSong){
+    middle += '<div><div class="flow-col-title">Copyright Side</div><div class="flow-box song-box"><strong>Song / PA</strong><div>'+chips(
+      ['Composition / Song Copyright'],
+      'song'
+    )+'</div></div></div>';
+  }
+  if(f.needsRecording){
+    middle += '<div><div class="flow-box recording-box"><strong>Sound Recording / SR</strong><div>'+chips(
+      ['Master Recording Copyright'],
+      'recording'
+    )+'</div></div></div>';
+  }
+  middle += '</div>';
+  html += middle;
+
+  html += '<div class="arrow-col">→</div>';
+
+  let rightsCol = '<div class="flow-lane">';
+  if(f.needsSong){
+    rightsCol += '<div><div class="flow-col-title">Rights / Licenses</div><div class="flow-box right-box">'+chips(f.songRights,'song')+'</div></div>';
+  }
+  if(f.needsRecording){
+    rightsCol += '<div><div class="flow-box right-box">'+chips(f.recordingRights,'recording')+'</div></div>';
+  }
+  rightsCol += '</div>';
+  html += rightsCol;
+
+  html += '</div>';
+
+  html += '<div class="flow-grid" style="margin-top:8px;">';
+  html += '<div></div><div class="arrow-col"> </div><div></div><div class="arrow-col">→</div>';
+
+  let orgsCol = '<div class="flow-lane">';
+  if(f.needsSong){
+    orgsCol += '<div><div class="flow-col-title">Organizations / Rightsholders</div><div class="flow-box org-box">'+chips(f.songOrgs,'song')+'</div></div>';
+  }
+  if(f.needsRecording){
+    orgsCol += '<div><div class="flow-box org-box">'+chips(f.recordingOrgs,'recording')+'</div></div>';
+  }
+  orgsCol += '</div>';
+  html += orgsCol;
+  html += '</div>';
+
+  $('flowGraphic').innerHTML = html;
+}
+
+function makeChoice(label,set){
+  const b=document.createElement('button');
+  b.type='button';
+  b.className='choice';
+  b.textContent=label;
+  b.setAttribute('aria-pressed','false');
+  b.addEventListener('click',()=>{
+    if(answered) return;
+    const on=b.getAttribute('aria-pressed')==='true';
+    b.setAttribute('aria-pressed',String(!on));
+    on ? set.delete(label) : set.add(label);
+  });
+  return b;
+}
+
+SONG_RIGHTS.forEach(v=>$('songRights').appendChild(makeChoice(v,selectedRights)));
+RECORDING_RIGHTS.forEach(v=>$('recordingRights').appendChild(makeChoice(v,selectedRights)));
+ORGS.forEach(v=>$('orgs').appendChild(makeChoice(v,selectedOrgs)));
+
+function clearSelections(){
+  selectedRights.clear();
+  selectedOrgs.clear();
+  document.querySelectorAll('.choice').forEach(b=>b.setAttribute('aria-pressed','false'));
+}
+
+function loadQuestion(){
+  answered=false;
+  hintUsed=false;
+  clearSelections();
+  const q=QUESTIONS[index];
+  $('scenario').textContent=q.s;
+  $('difficulty').textContent=q.d;
+  $('round').textContent=(index+1)+'/'+QUESTIONS.length;
+  $('hint').classList.add('hidden');
+  $('feedback').classList.add('hidden');
+  $('flowGraphic').innerHTML = '';
+  $('checkBtn').classList.remove('hidden');
+  $('nextBtn').classList.add('hidden');
+}
+
+function exact(set,arr){
+  return set.size===arr.length && arr.every(v=>set.has(v));
+}
+
+function checkAnswer(){
+  if(answered) return;
+  answered=true;
+  const q=QUESTIONS[index];
+  const perfect=exact(selectedRights,q.r) && exact(selectedOrgs,q.o);
+  let points=0;
+
+  q.r.forEach(v=>{if(selectedRights.has(v)) points+=75;});
+  q.o.forEach(v=>{if(selectedOrgs.has(v)) points+=50;});
+  [...selectedRights].forEach(v=>{if(!q.r.includes(v)) points-=25;});
+  [...selectedOrgs].forEach(v=>{if(!q.o.includes(v)) points-=25;});
+  if(perfect) points+=100;
+  if(hintUsed) points-=25;
+  points=Math.max(0,points);
+  score+=points;
+
+  $('score').textContent=score;
+  $('feedbackTitle').textContent=perfect?'Correct!':'Not quite.';
+  $('feedbackTitle').className='feedback-title '+(perfect?'good':'bad');
+  $('feedbackText').textContent=q.x;
+  $('correctBox').innerHTML=
+    '<strong>Rights:</strong> '+q.r.join(' + ')+
+    '<br><strong>Organizations / rightsholders:</strong> '+q.o.join(' + ')+
+    '<br><strong>Points:</strong> '+points;
+
+  renderFlow(q);
+  $('feedback').classList.remove('hidden');
+  $('checkBtn').classList.add('hidden');
+  $('nextBtn').classList.remove('hidden');
+  $('nextBtn').textContent=index===QUESTIONS.length-1?'Final Score':'Next';
+}
+
+function nextQuestion(){
+  if(index===QUESTIONS.length-1){
+    finishGame();
+    return;
+  }
+  index++;
+  loadQuestion();
+}
+
+function finishGame(){
+  $('feedback').classList.add('hidden');
+  $('nextBtn').classList.add('hidden');
+  $('finish').classList.remove('hidden');
+  $('finalScore').textContent=score;
+
+  const max=QUESTIONS.reduce((t,q)=>t+q.r.length*75+q.o.length*50+100,0);
+  const pct=score/max;
+  let rank,text;
+  if(pct>=.9){
+    rank='Copyright Boss';
+    text='Excellent command of rights, licenses, administrators, and copyright owners.';
+  }else if(pct>=.75){
+    rank='Clearance Expert';
+    text='Strong work. Review the scenarios where multiple rights and multiple copyright owners are involved.';
+  }else if(pct>=.55){
+    rank='Rights Manager';
+    text='Good foundation. Focus on the distinction between collective licensing organizations and direct permission from copyright owners.';
+  }else{
+    rank='Rights Rookie';
+    text='Try again by first separating the PA copyright from the SR copyright, then determine which right is being exercised.';
+  }
+  $('rank').textContent=rank;
+  $('rankText').textContent=text;
+}
+
+function restart(){
+  index=0;
+  score=0;
+  answered=false;
+  hintUsed=false;
+  $('score').textContent='0';
+  $('finish').classList.add('hidden');
+  loadQuestion();
+}
+
+$('hintBtn').addEventListener('click',()=>{
+  if(answered) return;
+  hintUsed=true;
+  $('hint').textContent=QUESTIONS[index].h;
+  $('hint').classList.remove('hidden');
+});
+$('clearBtn').addEventListener('click',()=>{if(!answered) clearSelections();});
+$('startOverBtn').addEventListener('click',restart);
+$('checkBtn').addEventListener('click',checkAnswer);
+$('nextBtn').addEventListener('click',nextQuestion);
+$('restartBtn').addEventListener('click',restart);
+
+loadQuestion();
+</script>
+</body>
+</html>
